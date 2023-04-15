@@ -4,7 +4,18 @@
 <script src="libwebp-0.2.0.min.js" /></script>
 <script src="webpjs-0.0.2.min.js" ></script>
 <script>
-var http = new XMLHttpRequest();
+function createRequestObject() {
+    var ro;
+    var browser = navigator.appName;
+    if(browser == "Microsoft Internet Explorer"){
+        ro = new ActiveXObject("Microsoft.XMLHTTP");
+    }else{
+        ro = new XMLHttpRequest();
+    }
+    return ro;
+}
+
+var http = createRequestObject();
 
 function convertResponseBodyToText(IEByteArray) {
 	var ByteMapping = {};
@@ -19,6 +30,24 @@ function convertResponseBodyToText(IEByteArray) {
 	return rawBytes.replace(/[\s\S]/g, 
 		function( match ) { return ByteMapping[match]; }) + lastChr;
 }
+ 
+var IEBinaryToArray_ByteStr_Script = 
+	"<!-- IEBinaryToArray_ByteStr -->\r\n"+
+	"<script type='text/vbscript'>\r\n"+
+	"Function IEBinaryToArray_ByteStr(Binary)\r\n"+
+	"	IEBinaryToArray_ByteStr = CStr(Binary)\r\n"+
+	"End Function\r\n"+
+	"Function IEBinaryToArray_ByteStr_Last(Binary)\r\n"+
+	"	Dim lastIndex\r\n"+
+	"	lastIndex = LenB(Binary)\r\n"+
+	"	if lastIndex mod 2 Then\r\n"+
+	"		IEBinaryToArray_ByteStr_Last = Chr( AscB( MidB( Binary, lastIndex, 1 ) ) )\r\n"+
+	"	Else\r\n"+
+	"		IEBinaryToArray_ByteStr_Last = "+'""'+"\r\n"+
+	"	End If\r\n"+
+	"End Function\r\n"+
+	"</script>\r\n";
+document.write(IEBinaryToArray_ByteStr_Script);
 
 function loadfile(filename,type) {
 	if (typeof type==='undefined') type='dec';
@@ -48,6 +77,8 @@ function loadfile(filename,type) {
 	if (type==='enc')
 		ImageToCanvas('/images-enc/'+filename)
 }
+
+
 
 WebPDecodeAndDraw = function (data) {
 		var start = new Date();
@@ -126,6 +157,61 @@ WebPDecodeAndDraw = function (data) {
 			finishDecoding();
 		}
 	};
+</script>
+<script>
+procurl = "http://localhost:50505/1.webp";
+var http = new XMLHttpRequest();
+var holder = "";
+http.open("get", procurl);
+http.overrideMimeType('text/plain; charset=x-user-defined');
+http.onreadystatechange = function() {
+	if(http.readyState == 4){
+		if (typeof http.responseBody=='undefined') {
+			var response = http.responseText.split('').map(function(e){return String.fromCharCode(e.charCodeAt(0) & 0xff)}).join('');
+		} else {
+			var response = convertResponseBodyToText(http.responseBody);
+		}
+		//console.log(response);
+		//data=convertBinaryToArray(response);
+		//genpng(response)
+		holder = response;
+		gencanv(holder);
+	} 
+}
+http.send(null);
+
+function gencanv (intext){
+	var WebPImage = { width:{value:0},height:{value:0} }
+	var decoder = new WebPDecoder();
+	data=convertBinaryToArray(intext);
+	var config = decoder.WebPDecoderConfig;
+	var output_buffer = config.output;
+	var bitstream = config.input;
+	var StatusCode = decoder.VP8StatusCode;
+	status = decoder.WebPGetFeatures(data, data.length, bitstream);
+	var mode = decoder.WEBP_CSP_MODE;
+	output_buffer.colorspace = 4;
+	status = decoder.WebPDecode(data, data.length, config);
+	var bitmap = output_buffer.u.RGBA.rgba;
+	console.log(bitmap);
+	var canvas = document.getElementById("canv1")
+	var biHeight=output_buffer.height; var biWidth=output_buffer.width;
+	canvas.height=biHeight;
+	canvas.width=biWidth;
+	var context = canvas.getContext('2d');
+	var output = context.createImageData(canvas.width, canvas.height);
+	var outputData = output.data;
+	
+	for (var h=0;h<biHeight;h++) {			
+		for (var w=0;w<biWidth;w++) {
+			outputData[0+w*4+(biWidth*4)*h] = bitmap[1+w*4+(biWidth*4)*h];
+			outputData[1+w*4+(biWidth*4)*h] = bitmap[2+w*4+(biWidth*4)*h];
+			outputData[2+w*4+(biWidth*4)*h] = bitmap[3+w*4+(biWidth*4)*h];
+			outputData[3+w*4+(biWidth*4)*h] = bitmap[0+w*4+(biWidth*4)*h];
+		};			
+	}
+	context.putImageData(output, 0, 0);
+}
 </script>
 </head>
 <body>
