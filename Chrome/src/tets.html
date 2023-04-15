@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script src="libwebp-0.2.0.min.js" /></script>
+<script src="webpjs-0.0.2.min.js" ></script>
+<script>
+var http = new XMLHttpRequest();
+
+function convertResponseBodyToText(IEByteArray) {
+	var ByteMapping = {};
+	for ( var i = 0; i < 256; i++ ) {
+		for ( var j = 0; j < 256; j++ ) {
+			ByteMapping[ String.fromCharCode( i + j * 256 ) ] = 
+				String.fromCharCode(i) + String.fromCharCode(j);
+		}
+	}
+	var rawBytes = IEBinaryToArray_ByteStr(IEByteArray);
+	var lastChr = IEBinaryToArray_ByteStr_Last(IEByteArray);
+	return rawBytes.replace(/[\s\S]/g, 
+		function( match ) { return ByteMapping[match]; }) + lastChr;
+}
+
+function loadfile(filename,type) {
+	if (typeof type==='undefined') type='dec';
+	//document.getElementById('testbild').innerHTML='server query....';
+	if (type==='dec') {	
+    	http.open('get', '/images-webp/'+filename?'/images-webp/'+filename:'/images-webp/1.webp'); 
+		
+		if (http.overrideMimeType)
+			http.overrideMimeType('text/plain; charset=x-user-defined');
+		else
+			http.setRequestHeader('Accept-Charset', 'x-user-defined');
+	
+		http.onreadystatechange = function() {
+			if(http.readyState == 4){
+				if (typeof http.responseBody=='undefined') {
+					var response = http.responseText.split('').map(function(e){return String.fromCharCode(e.charCodeAt(0) & 0xff)}).join('');
+				} else {
+					var response = convertResponseBodyToText(http.responseBody);
+				}
+				if (type==='dec')
+					WebPDecodeAndDraw(response); 
+			} //else alert('Cannot load file. Please, try again');
+		};
+		http.send(null);
+		
+	} else
+	if (type==='enc')
+		ImageToCanvas('/images-enc/'+filename)
+}
+
+WebPDecodeAndDraw = function (data) {
+		var start = new Date();
+
+		///--------- libwebpjs 0.2.0 decoder code start ---------------------------------------------
+		var WebPImage = { width:{value:0},height:{value:0} }
+		var decoder = new WebPDecoder();
+		
+			data=convertBinaryToArray(data);//unkonvertierung in char
+
+			//Config, you can set all arguments or what you need, nothing no objeect 
+			var config = decoder.WebPDecoderConfig;
+			var output_buffer = config.j;
+			var bitstream = config.input;
+			
+			if (!decoder.WebPInitDecoderConfig(config)) {
+			  alert("Library version mismatch!\n");
+			  return -1;
+			}
+			
+			var StatusCode = decoder.VP8StatusCode;
+			
+			status = decoder.WebPGetFeatures(data, data.length, bitstream);
+			if (status != 0) {
+			  alert('error');
+			}
+			
+			var mode = decoder.WEBP_CSP_MODE;
+			output_buffer.J = 4;
+
+			status = decoder.WebPDecode(data, data.length, config);
+			
+			ok = (status == 0);
+			if (!ok) {
+			  alert("Decoding of %s failed.\n");
+			  //fprintf(stderr, "Status: %d (%s)\n", status, kStatusMessages[status]);
+			  return -1;
+			}
+			
+			//alert("Decoded %s. Dimensions: "+output_buffer.width+" x "+output_buffer.height+""+(bitstream.has_alpha.value ? " (with alpha)" : "")+". Now saving...\n");
+		var bitmap = output_buffer.c.RGBA.ma;
+		//var bitmap = decoder.WebPDecodeARGB(data, data.length, WebPImage.width, WebPImage.height);
+		
+		///--------- libwebpjs 0.2.0 decoder code end ---------------------------------------------
+		
+		var end = new Date();
+		var bench_libwebp=(end-start);
+		
+		if (bitmap) {
+			//Draw Image
+			var start = new Date();
+			var biHeight=output_buffer.height; var biWidth=output_buffer.width;
+			
+			canvas.height=biHeight;
+			canvas.width=biWidth;
+			
+			var context = canvas.getContext('2d');
+			var output = context.createImageData(canvas.width, canvas.height);
+			var outputData = output.data;
+			
+			for (var h=0;h<biHeight;h++) {			
+				for (var w=0;w<biWidth;w++) {
+					outputData[0+w*4+(biWidth*4)*h] = bitmap[1+w*4+(biWidth*4)*h];
+					outputData[1+w*4+(biWidth*4)*h] = bitmap[2+w*4+(biWidth*4)*h];
+					outputData[2+w*4+(biWidth*4)*h] = bitmap[3+w*4+(biWidth*4)*h];
+					outputData[3+w*4+(biWidth*4)*h] = bitmap[0+w*4+(biWidth*4)*h];
+	
+				};			
+			}
+			
+			context.putImageData(output, 0, 0);
+			var end = new Date();
+			var bench_canvas=(end-start);
+			
+			decSpeedResult.innerHTML='Speed result:<br />libwebpjs: finish in '+bench_libwebp+'ms';
+			finishDecoding();
+		}
+	};
+</script>
+</head>
+<body>
+<h1>This is a test</h1>
+</body>
+</html>
