@@ -10,15 +10,29 @@
 		"16": "icons/w2p16.png",
 		"32": "icons/w2p32.png"
 	},
-
+	"content_scripts": [
+		{
+			"matches": [
+				"https://developers.google.com/speed/webp/gallery1"
+			],
+			"js": [
+				"src/webp2png.js"
+			],
+			"run_at": "document_end"
+		}
+	],
 	"background": {
-		"service_worker": "src/webp2png.js"
+		"service_worker": "src/background.js"
 	},
 	"permissions": [
 		"webRequest",
+		"activeTab",
+		"scripting",
+		"tabs"
+	],
+	"host_permissions": [
 		"http://*/*", 
 		"https://*/*", 
-		"<all_urls>",
-		"activeTab"
+		"<all_urls>"
 	]
 }

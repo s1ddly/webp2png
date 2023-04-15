@@ -1,6 +1,1 @@
-
-chrome.webRequest.onCompleted.addListener((rqst) => {
-	alert("yeet");
-},
-{urls: ["<all_urls>"]}
-);
+console.log("triggered");
