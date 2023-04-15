@@ -1,23 +1,24 @@
 {
 	"name": "webp2png",
-	"version": "0.1",
+	"version": "0.2",
 	"manifest_version": 3,
 	"description": "Automatically converts all .webp images on a page to png",
-	"homepage_url": "https://github.com/harshjv/github-repo-size",
-	"author": "Harsh Vakharia",
+	"homepage_url": "https://github.com/s1ddly/webp2png",
+	"author": "Sid Shardanand",
+	"action": {},
 	"icons": {
 		"16": "icons/w2p16.png",
 		"32": "icons/w2p32.png"
 	},
-	"content_scripts": [
-		{
-			"matches": [
-				"https://www.google.com/"
-			],
-			"js": [
-				"src/webp2png.js"
-			],
-			"run_at": "document_end"
-		}
+
+	"background": {
+		"service_worker": "src/webp2png.js"
+	},
+	"permissions": [
+		"webRequest",
+		"http://*/*", 
+		"https://*/*", 
+		"<all_urls>",
+		"activeTab"
 	]
 }
