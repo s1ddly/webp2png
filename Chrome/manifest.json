@@ -1,6 +1,6 @@
 {
 	"name": "webp2png",
-	"version": "0.2",
+	"version": "0.3",
 	"manifest_version": 3,
 	"description": "Automatically converts all .webp images on a page to png",
 	"homepage_url": "https://github.com/s1ddly/webp2png",
