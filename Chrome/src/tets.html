@@ -196,11 +196,15 @@ function gencanv (intext){
 	}
 	context.putImageData(output, 0, 0);
 }
+
+var img = document.getElementById("canv1").toDataURL('image/png');
+document.getElementById("tstpng").src = img;
 */
 </script>
 </head>
 <body>
 <h1>This is a test</h1>
 <canvas id="canv1"></canvas>
+<img id="tstpng"></img>
 </body>
 </html>
