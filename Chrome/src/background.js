@@ -7,11 +7,11 @@ chrome.webRequest.onCompleted.addListener((rqst) => {
 				//END OF DEBUG
 				chrome.scripting.executeScript(
 					{
-						target: {tabId: tablist[0].id},
+						target: {tabId: tablist[0].id, allFrames : true},
 						files: ["src/webp2png.js"]
 					}
 				)
 			}
 		}
 	);
-}, {urls: ["https://*/*.webp", "http://*/*.webp"]});
+}, {urls: ["https://*/*.webp", "http://*/*.webp"], types: ["image"]});
