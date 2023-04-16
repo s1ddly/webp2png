@@ -143,7 +143,7 @@ WebPDecodeAndDraw = function (data) {
 </script>
 <script>
 /*
-procurl = "http://localhost:50505/2.webp";
+//procurl = "http://localhost:50505/2.webp";
 var http = new XMLHttpRequest();
 var holder = "";
 http.open("get", procurl);
@@ -164,7 +164,7 @@ http.onreadystatechange = function() {
 }
 http.send(null);
 
-function gencanv (intext){
+function gencanv (intext, outimgid){
 	var WebPImage = { width:{value:0},height:{value:0} }
 	var decoder = new WebPDecoder();
 	data=convertBinaryToArray(intext);
@@ -178,7 +178,7 @@ function gencanv (intext){
 	status = decoder.WebPDecode(data, data.length, config);
 	var bitmap = output_buffer.u.RGBA.rgba;
 	console.log(bitmap);
-	var canvas = document.getElementById("canv1");
+	var canvas = document.createElement("canvas");
 	var biHeight=output_buffer.height; var biWidth=output_buffer.width;
 	canvas.height=biHeight;
 	canvas.width=biWidth;
@@ -195,10 +195,13 @@ function gencanv (intext){
 		};			
 	}
 	context.putImageData(output, 0, 0);
+	//console.log(canvas.toDataURL('image/png'));
+	document.getElementById(outimgid).src = canvas.toDataURL('image/png')
+	canvas.remove()
 }
 
-var img = document.getElementById("canv1").toDataURL('image/png');
-document.getElementById("tstpng").src = img;
+//var img = document.getElementById("canv1").toDataURL('image/png');
+//document.getElementById("tstpng").src = img;
 */
 </script>
 </head>
