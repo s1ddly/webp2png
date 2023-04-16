@@ -7,7 +7,7 @@ chrome.webRequest.onCompleted.addListener((rqst) => {
 				//END OF DEBUG
 				chrome.scripting.executeScript(
 					{
-						target: {tabId: tablist[0].id, allFrames : true},
+						target: {tabId: tablist[0].id},
 						files: ["src/webp2png.js"]
 					}
 				)
