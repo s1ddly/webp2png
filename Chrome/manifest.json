@@ -25,7 +25,15 @@
 	"background": {
 		"service_worker": "src/background.js"
 	},
+	"declarative_net_request" : {
+		"rule_resources" : [{
+			"id": "webpruleset",
+			"enabled": true,
+			"path": "src/webprule.json"
+		}]
+	},
 	"permissions": [
+		"declarativeNetRequest",
 		"webRequest",
 		"activeTab",
 		"scripting",
