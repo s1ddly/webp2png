@@ -11,17 +11,6 @@
 		"48": "icons/wmm48.png",
 		"128": "icons/wmm128.png"
 	},
-	"content_scripts": [
-		{
-			"matches": [
-				"https://developers.google.com/speed/webp/gallery1"
-			],
-			"js": [
-				"src/webp2png.js"
-			],
-			"run_at": "document_end"
-		}
-	],
 	"background": {
 		"service_worker": "src/background.js"
 	},
@@ -36,8 +25,7 @@
 		"declarativeNetRequest",
 		"webRequest",
 		"activeTab",
-		"scripting",
-		"tabs"
+		"scripting"
 	],
 	"host_permissions": [
 		"http://*/*", 
